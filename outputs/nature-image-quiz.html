@@ -1031,6 +1031,8 @@
       let autoNextTimer = null;
       let timerInterval = null;
       let penaltyNoticeTimer = null;
+      let recordsResetClicks = 0;
+      let recordsResetTimer = null;
 
       const WIKI_TITLES = {
         rose: "Роза",
@@ -1195,6 +1197,19 @@
         } catch {
           // Игру можно продолжать, даже если браузер запретил запись.
         }
+      }
+
+      function resetRecords() {
+        state.records = {};
+        state.recordNotice = null;
+
+        try {
+          window.localStorage.removeItem(RECORDS_STORAGE_KEY);
+        } catch {
+          // Если браузер запретил доступ к хранилищу, просто очищаем текущую сессию.
+        }
+
+        renderStart();
       }
 
       function getElapsedTime() {
@@ -1644,7 +1659,7 @@
             </div>
 
             <section class="records-panel" aria-label="Рекорды на время">
-              <p class="eyebrow">Рекорды на время</p>
+              <p class="eyebrow" title="Рекорды на время" data-records-reset>Рекорды на время</p>
               <div class="records-table-wrap">
                 <table class="records-table">
                   <caption class="visually-hidden">Рекорды игры на время по каждому режиму</caption>
@@ -1677,6 +1692,25 @@
 
         document.querySelectorAll("[data-mode]").forEach((button) => {
           button.addEventListener("click", () => startRound(button.dataset.mode));
+        });
+
+        document.querySelector("[data-records-reset]").addEventListener("click", () => {
+          recordsResetClicks += 1;
+          window.clearTimeout(recordsResetTimer);
+          recordsResetTimer = window.setTimeout(() => {
+            recordsResetClicks = 0;
+          }, 1800);
+
+          if (recordsResetClicks < 5) {
+            return;
+          }
+
+          recordsResetClicks = 0;
+          window.clearTimeout(recordsResetTimer);
+
+          if (window.confirm("Сбросить все рекорды на время?")) {
+            resetRecords();
+          }
         });
       }
 
