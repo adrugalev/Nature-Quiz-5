@@ -1844,7 +1844,11 @@
         state.elapsedTime = state.gameType === "timed" ? getElapsedTime() : null;
         state.startedAt = null;
 
-        if (state.gameType === "timed" && state.elapsedTime !== null) {
+        if (
+          state.gameType === "timed" &&
+          state.elapsedTime !== null &&
+          state.correctAnswers === state.questions.length
+        ) {
           const currentRecord = state.records[state.mode];
           if (!currentRecord || currentRecord.time > state.elapsedTime) {
             state.records[state.mode] = {
