@@ -1,0 +1,1951 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Природный квиз</title>
+    <style>
+      :root {
+        color: #172033;
+        background: #edf3f1;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        --surface: #ffffff;
+        --surface-muted: #f6faf8;
+        --text-muted: #607086;
+        --line: #d8e3df;
+        --primary: #0f766e;
+        --primary-strong: #115e59;
+        --correct: #16a34a;
+        --correct-bg: #e9f9ef;
+        --wrong: #dc2626;
+        --wrong-bg: #fff1f1;
+        --shadow: 0 24px 70px rgba(31, 48, 61, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      .app-shell {
+        display: flex;
+        min-height: 100vh;
+        min-height: 100dvh;
+        flex-direction: column;
+        background:
+          radial-gradient(circle at 14% 8%, rgba(250, 204, 21, 0.2), transparent 28rem),
+          radial-gradient(circle at 86% 20%, rgba(14, 165, 233, 0.14), transparent 24rem),
+          linear-gradient(135deg, #edf3f1 0%, #f8fbfd 48%, #e9eef5 100%);
+      }
+
+      .app-main {
+        display: grid;
+        width: min(1120px, calc(100% - 32px));
+        flex: 1;
+        margin: 0 auto;
+        place-items: center;
+        padding: clamp(14px, 2.6vh, 28px) 0 12px;
+      }
+
+      .screen {
+        width: 100%;
+        border: 1px solid rgba(216, 227, 223, 0.95);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--shadow);
+        padding: clamp(16px, 2.6vw, 28px);
+      }
+
+      .start-screen,
+      .result-screen {
+        display: grid;
+        gap: clamp(16px, 2.4vh, 24px);
+      }
+
+      .intro {
+        max-width: 780px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: #0f766e;
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        color: #111827;
+        font-size: clamp(1.78rem, 3.8vw, 3.55rem);
+        line-height: 1;
+      }
+
+      h2 {
+        margin-bottom: 0;
+        color: #111827;
+        font-size: clamp(1.3rem, 3vw, 2.65rem);
+        line-height: 1.12;
+        overflow-wrap: anywhere;
+      }
+
+      .lead {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: clamp(0.92rem, 1.6vw, 1.02rem);
+        line-height: 1.42;
+      }
+
+      .start-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .game-type-switch {
+        display: inline-grid;
+        width: fit-content;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-muted);
+        padding: 4px;
+      }
+
+      .game-type-switch button {
+        min-height: 38px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 800;
+        padding: 0 14px;
+        transition:
+          background 160ms ease,
+          color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .game-type-switch button:hover,
+      .game-type-switch button.is-active {
+        background: #fff;
+        color: #111827;
+        box-shadow: 0 8px 18px rgba(32, 51, 72, 0.1);
+      }
+
+      .difficulty-toggle {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        padding: 7px 8px 7px 14px;
+        transition:
+          border-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .difficulty-toggle:hover {
+        border-color: #95adbd;
+        box-shadow: 0 10px 22px rgba(32, 51, 72, 0.1);
+      }
+
+      .difficulty-toggle__copy {
+        display: grid;
+        gap: 2px;
+      }
+
+      .difficulty-toggle__copy span {
+        color: #111827;
+        font-size: 0.9rem;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+
+      .difficulty-toggle__copy small {
+        color: var(--text-muted);
+        font-size: 0.74rem;
+        font-weight: 700;
+        line-height: 1.15;
+      }
+
+      .difficulty-toggle input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+
+      .difficulty-toggle__switch {
+        position: relative;
+        display: block;
+        width: 46px;
+        height: 26px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: #cbd7e3;
+        transition: background 160ms ease;
+      }
+
+      .difficulty-toggle__switch::after {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(32, 51, 72, 0.24);
+        content: "";
+        transition: transform 160ms ease;
+      }
+
+      .difficulty-toggle input:checked + .difficulty-toggle__switch {
+        background: #0f766e;
+      }
+
+      .difficulty-toggle input:checked + .difficulty-toggle__switch::after {
+        transform: translateX(20px);
+      }
+
+      .mode-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .mode-card,
+      .answer-card,
+      .result-card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .mode-card {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        overflow: hidden;
+        min-height: 156px;
+        border-radius: 16px;
+        padding: 16px;
+        color: #fff;
+        cursor: pointer;
+        text-align: left;
+        background-position: center;
+        background-size: cover;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          box-shadow 180ms ease,
+          filter 180ms ease;
+      }
+
+      .mode-card::before {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(180deg, rgba(5, 16, 26, 0), rgba(5, 16, 26, 0.22)),
+          linear-gradient(90deg, rgba(5, 16, 26, 0.42) 0%, rgba(5, 16, 26, 0.18) 38%, rgba(5, 16, 26, 0.04) 72%);
+        content: "";
+      }
+
+      .mode-card::after {
+        position: absolute;
+        inset: 12px;
+        z-index: -2;
+        border-radius: 14px;
+        background: var(--mode-art);
+        background-size: cover;
+        background-position: center;
+        content: "";
+        transform: scale(1.12);
+      }
+
+      .mode-card span {
+        display: block;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 10px;
+        background: rgba(9, 16, 28, 0.24);
+        padding: 4px 8px 6px;
+        color: #fff;
+        font-size: clamp(1.16rem, 2.2vw, 1.58rem);
+        font-weight: 900;
+        line-height: 1.12;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
+        overflow-wrap: anywhere;
+      }
+
+      .mode-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(15, 118, 110, 0.55);
+        box-shadow: 0 18px 36px rgba(15, 118, 110, 0.16);
+        filter: saturate(1.08);
+      }
+
+      .records-panel {
+        display: grid;
+        gap: 10px;
+      }
+
+      .records-table-wrap {
+        overflow-x: auto;
+        border: 1px solid #d5e2ed;
+        border-radius: 16px;
+        background:
+          linear-gradient(90deg, rgba(15, 118, 110, 0.07), transparent 42%),
+          #fff;
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.88);
+      }
+
+      .records-table {
+        width: 100%;
+        min-width: 520px;
+        border-collapse: collapse;
+        color: #111827;
+        font-size: 0.92rem;
+      }
+
+      .records-table th,
+      .records-table td {
+        padding: 12px 14px;
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      .records-table thead th {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .records-table tbody tr {
+        border-top: 1px solid #edf2f7;
+      }
+
+      .records-table tbody th {
+        font-weight: 900;
+      }
+
+      .records-table__time strong {
+        display: inline-block;
+        min-width: 74px;
+        border-radius: 999px;
+        background: #ecfdf5;
+        color: #14532d;
+        padding: 5px 9px;
+        text-align: center;
+      }
+
+      .records-table__empty {
+        color: var(--text-muted);
+      }
+
+      .primary-button,
+      .secondary-button {
+        min-height: 46px;
+        border-radius: 12px;
+        padding: 0 18px;
+        cursor: pointer;
+        font-weight: 800;
+        transition:
+          transform 160ms ease,
+          background 160ms ease,
+          border-color 160ms ease,
+          opacity 160ms ease;
+      }
+
+      .primary-button {
+        border: 0;
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .primary-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        background: var(--primary-strong);
+      }
+
+      .secondary-button {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: #1f2937;
+      }
+
+      .secondary-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        border-color: #95adbd;
+      }
+
+      .answer-card:disabled {
+        cursor: not-allowed;
+        opacity: 0.84;
+      }
+
+      .quiz-screen {
+        display: grid;
+        gap: clamp(12px, 2vh, 18px);
+      }
+
+      .quiz-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .quiz-header h1 {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: clamp(0.98rem, 1.8vw, 1.28rem);
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .score-box {
+        position: relative;
+        display: grid;
+        min-width: 164px;
+        gap: 4px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background:
+          linear-gradient(90deg, rgba(15, 118, 110, 0.16) 0 var(--quiz-progress, 0%), transparent var(--quiz-progress, 0%) 100%),
+          var(--surface-muted);
+        padding: 8px 12px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-align: right;
+        transition: background 220ms ease;
+      }
+
+      .score-box--timed {
+        min-width: 224px;
+        padding-top: 46px;
+      }
+
+      .score-box strong {
+        color: #111827;
+      }
+
+      .timer-line {
+        position: absolute;
+        top: 7px;
+        right: 10px;
+        display: grid;
+        justify-items: end;
+        gap: 3px;
+        color: #0f766e;
+        font-size: 0.78rem;
+        font-style: normal;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .record-line {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+      }
+
+      .penalty-notice {
+        color: var(--wrong);
+        font-size: 0.78rem;
+        font-weight: 900;
+        white-space: nowrap;
+        animation: penalty-pop 850ms ease both;
+      }
+
+      @keyframes penalty-pop {
+        0% {
+          opacity: 0;
+          transform: translateY(4px) scale(0.94);
+        }
+
+        18%,
+        68% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+
+        100% {
+          opacity: 0;
+          transform: translateY(-5px) scale(0.98);
+        }
+      }
+
+      .question-panel {
+        border: 1px solid #c7d8e7;
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(226, 246, 244, 0.86) 48%, rgba(255, 247, 223, 0.92) 100%),
+          linear-gradient(90deg, #f8fbff, #eaf6f4);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        padding: clamp(14px, 2.4vw, 22px);
+      }
+
+      .question-panel h2 {
+        font-size: clamp(1.18rem, 2.65vw, 2.35rem);
+      }
+
+      .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .answers-grid--six {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .answer-card {
+        display: grid;
+        min-height: 184px;
+        place-items: center;
+        border-radius: 16px;
+        padding: 8px;
+        color: #111827;
+        cursor: pointer;
+        text-align: center;
+        transition:
+          transform 170ms ease,
+          border-color 170ms ease,
+          box-shadow 170ms ease,
+          background 170ms ease;
+      }
+
+      .answer-card__media {
+        position: relative;
+        display: grid;
+        width: 100%;
+        max-width: none;
+        aspect-ratio: 16 / 7.2;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(216, 227, 223, 0.9);
+        border-radius: 10px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(240, 253, 250, 0.86)),
+          #fff;
+      }
+
+      .answer-card__media::after {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        box-shadow:
+          inset 0 1px rgba(255, 255, 255, 0.84),
+          inset 0 -22px 38px rgba(15, 23, 42, 0.08);
+        content: "";
+        pointer-events: none;
+      }
+
+      .answers-grid--six .answer-card {
+        min-height: 146px;
+      }
+
+      .answer-card img {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        object-fit: contain;
+        filter: drop-shadow(0 12px 18px rgba(25, 35, 48, 0.14));
+        transition:
+          opacity 180ms ease,
+          filter 180ms ease;
+      }
+
+      .answer-card img.is-photo {
+        object-fit: contain;
+        object-position: center center;
+        background: #fff;
+        filter: saturate(1.07) contrast(1.03);
+      }
+
+      .answers-grid--six .answer-card img {
+        max-height: none;
+      }
+
+      .answers-grid--six .answer-card__media {
+        aspect-ratio: 16 / 6.2;
+      }
+
+      .answer-card:hover:not(:disabled) {
+        transform: translateY(-2px);
+        border-color: #95adbd;
+        box-shadow: 0 14px 30px rgba(32, 51, 72, 0.12);
+      }
+
+      .answer-card.is-correct {
+        border-color: var(--correct);
+        background: var(--correct-bg);
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.16);
+      }
+
+      .answer-card.is-wrong {
+        border-color: var(--wrong);
+        background: var(--wrong-bg);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+      }
+
+      .back-button {
+        width: fit-content;
+        min-height: auto;
+        border-color: transparent;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 6px 2px;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .back-button:hover:not(:disabled) {
+        transform: none;
+        border-color: transparent;
+        color: #1f2937;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 14px;
+      }
+
+      .record-banner {
+        width: fit-content;
+        max-width: 100%;
+        border: 1px solid rgba(22, 163, 74, 0.28);
+        border-radius: 14px;
+        background: linear-gradient(135deg, #ecfdf5, #f0f9ff);
+        color: #14532d;
+        box-shadow: 0 12px 28px rgba(22, 101, 52, 0.12);
+        margin: -4px 0 0;
+        padding: 12px 14px;
+        font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+        font-weight: 900;
+        line-height: 1.25;
+      }
+
+      .result-hero {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid #d5e5ef;
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(240, 253, 250, 0.96), rgba(255, 251, 235, 0.96)),
+          #fff;
+        box-shadow: 0 18px 42px rgba(32, 51, 72, 0.12);
+        margin: 0;
+        padding: clamp(10px, 2vw, 18px);
+      }
+
+      .result-hero svg {
+        display: block;
+        width: min(100%, 390px);
+        height: auto;
+      }
+
+      .result-card {
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .result-card span {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--text-muted);
+        font-weight: 700;
+      }
+
+      .result-card strong {
+        color: #111827;
+        font-size: clamp(1.7rem, 4vw, 3.3rem);
+        line-height: 1;
+      }
+
+      .mistakes-panel {
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface-muted);
+        padding: 14px;
+      }
+
+      .mistakes-panel h2 {
+        margin: 0;
+        font-size: clamp(1rem, 2vw, 1.28rem);
+      }
+
+      .mistakes-list {
+        display: grid;
+        max-height: min(32vh, 260px);
+        gap: 8px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .mistake-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border: 1px solid #e1e8ef;
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px 12px;
+      }
+
+      .mistake-row span,
+      .mistake-row small {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        line-height: 1.3;
+      }
+
+      .mistake-row strong {
+        display: block;
+        margin-top: 3px;
+        color: #111827;
+        font-size: 0.98rem;
+        overflow-wrap: anywhere;
+      }
+
+      .mistake-row img {
+        display: block;
+        width: 82px;
+        max-height: 58px;
+        margin-top: 6px;
+        border-radius: 8px;
+        object-fit: cover;
+        filter: drop-shadow(0 5px 10px rgba(25, 35, 48, 0.14));
+      }
+
+      .mistake-answer-pair {
+        display: grid;
+        min-width: 138px;
+        justify-items: end;
+        gap: 6px;
+        text-align: right;
+      }
+
+      .result-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .app-footer {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 0 0 12px;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      @media (max-width: 760px) {
+        .app-main {
+          width: min(100% - 20px, 1120px);
+          padding-top: 18px;
+        }
+
+        .screen {
+          border-radius: 18px;
+        }
+
+        .mode-grid,
+        .answers-grid,
+        .result-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .game-type-switch {
+          width: 100%;
+        }
+
+        .difficulty-toggle {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .quiz-header {
+          flex-direction: column;
+        }
+
+        .score-box {
+          width: 100%;
+          text-align: left;
+        }
+
+        .timer-line {
+          right: auto;
+          left: 12px;
+          justify-items: start;
+        }
+
+        .primary-button,
+        .secondary-button,
+        .mode-card {
+          width: 100%;
+        }
+
+        .back-button {
+          width: fit-content;
+        }
+
+        .mistake-row {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .mistake-answer-pair {
+          min-width: 0;
+          justify-items: start;
+          text-align: left;
+        }
+      }
+
+      @media (max-height: 760px) {
+        .start-screen,
+        .result-screen {
+          gap: 14px;
+        }
+
+        .mode-card {
+          min-height: 132px;
+          padding: 14px;
+        }
+
+        .question-panel {
+          padding: 16px 20px;
+        }
+
+        .answer-card {
+          min-height: 146px;
+        }
+
+        .answer-card__media {
+          aspect-ratio: 16 / 7;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app-shell"></div>
+
+    <script>
+      const ROUND_LENGTH = 10;
+      const HARD_ROUND_LENGTH = 20;
+      const OPTIONS_COUNT = 4;
+      const HARD_OPTIONS_COUNT = 6;
+      const RECORDS_STORAGE_KEY = "nature-image-quiz:timed-records";
+
+      const MODES = [
+        { id: "flowers", title: "Цветы", questionWord: "цветок", accent: "#f472b6" },
+        { id: "trees", title: "Деревья", questionWord: "дерево", accent: "#22c55e" },
+        { id: "birds", title: "Птицы", questionWord: "птицу", accent: "#38bdf8" },
+        { id: "animals", title: "Животные", questionWord: "животное", accent: "#f59e0b" },
+        { id: "fish", title: "Рыбы", questionWord: "рыбу", accent: "#0ea5e9" },
+      ];
+
+      const ITEMS = {
+        flowers: [
+          ["rose", "роза", "rose", "#e11d48", "#fb7185", "#14532d"],
+          ["tulip", "тюльпан", "tulip", "#ef4444", "#f97316", "#166534"],
+          ["sunflower", "подсолнух", "sunflower", "#facc15", "#854d0e", "#15803d"],
+          ["daisy", "ромашка", "daisy", "#ffffff", "#facc15", "#16a34a"],
+          ["lavender", "лаванда", "lavender", "#8b5cf6", "#a78bfa", "#15803d"],
+          ["poppy", "мак", "poppy", "#dc2626", "#111827", "#15803d"],
+          ["lily", "лилия", "lily", "#f8fafc", "#f59e0b", "#16a34a"],
+          ["orchid", "орхидея", "orchid", "#c084fc", "#f0abfc", "#15803d"],
+          ["peony", "пион", "peony", "#f9a8d4", "#ec4899", "#15803d"],
+          ["iris", "ирис", "iris", "#6366f1", "#facc15", "#15803d"],
+          ["dandelion", "одуванчик", "dandelion", "#fde047", "#eab308", "#16a34a"],
+          ["carnation", "гвоздика", "carnation", "#fb7185", "#be123c", "#15803d"],
+          ["chrysanthemum", "хризантема", "chrysanthemum", "#fef08a", "#f97316", "#15803d"],
+          ["hyacinth", "гиацинт", "hyacinth", "#7c3aed", "#c4b5fd", "#15803d"],
+          ["bluebell", "колокольчик", "bluebell", "#60a5fa", "#1d4ed8", "#15803d"],
+          ["cornflower", "василёк", "cornflower", "#2563eb", "#93c5fd", "#15803d"],
+          ["hibiscus", "гибискус", "hibiscus", "#f43f5e", "#fbbf24", "#15803d"],
+          ["lotus", "лотос", "lotus", "#f9a8d4", "#fef3c7", "#0f766e"],
+          ["snowdrop", "подснежник", "snowdrop", "#f8fafc", "#a7f3d0", "#15803d"],
+          ["clover", "клевер", "clover", "#ec4899", "#16a34a", "#15803d"],
+        ],
+        trees: [
+          ["oak", "дуб", "round", "#15803d", "#78350f", "#84cc16"],
+          ["birch", "берёза", "birch", "#22c55e", "#f8fafc", "#111827"],
+          ["pine", "сосна", "pine", "#166534", "#92400e", "#22c55e"],
+          ["willow", "ива", "willow", "#65a30d", "#854d0e", "#bef264"],
+          ["maple", "клён", "maple", "#ef4444", "#92400e", "#f97316"],
+          ["aspen", "осина", "aspen", "#84cc16", "#f8fafc", "#64748b"],
+          ["apple", "яблоня", "apple", "#22c55e", "#92400e", "#ef4444"],
+          ["fir", "ель", "fir", "#14532d", "#78350f", "#22c55e"],
+          ["baobab", "баобаб", "baobab", "#65a30d", "#92400e", "#a3e635"],
+          ["cypress", "кипарис", "cypress", "#166534", "#854d0e", "#22c55e"],
+          ["cherry", "сакура", "cherry", "#f9a8d4", "#92400e", "#fbcfe8"],
+          ["rowan", "рябина", "rowan", "#22c55e", "#78350f", "#dc2626"],
+          ["cedar", "кедр", "cedar", "#166534", "#92400e", "#86efac"],
+          ["linden", "липа", "round", "#84cc16", "#854d0e", "#bef264"],
+          ["poplar", "тополь", "poplar", "#16a34a", "#854d0e", "#bbf7d0"],
+          ["pear", "груша", "pear", "#84cc16", "#854d0e", "#facc15"],
+          ["chestnut", "каштан", "round", "#15803d", "#78350f", "#f59e0b"],
+          ["acacia", "акация", "acacia", "#a3e635", "#92400e", "#fde68a"],
+          ["ash", "ясень", "round", "#22c55e", "#854d0e", "#86efac"],
+          ["coconut", "кокосовая пальма", "palm", "#16a34a", "#a16207", "#92400e"],
+        ],
+        birds: [
+          ["owl", "сова", "owl", "#92400e", "#facc15", "#111827"],
+          ["swan", "лебедь", "swan", "#f8fafc", "#f97316", "#0f172a"],
+          ["duck", "утка", "duck", "#16a34a", "#f59e0b", "#78350f"],
+          ["peacock", "павлин", "peacock", "#0ea5e9", "#22c55e", "#7c3aed"],
+          ["flamingo", "фламинго", "flamingo", "#fb7185", "#f9a8d4", "#111827"],
+          ["parrot", "попугай", "parrot", "#22c55e", "#ef4444", "#facc15"],
+          ["eagle", "орёл", "eagle", "#78350f", "#f8fafc", "#f59e0b"],
+          ["woodpecker", "дятел", "woodpecker", "#111827", "#ef4444", "#f8fafc"],
+          ["penguin", "пингвин", "penguin", "#111827", "#f8fafc", "#f59e0b"],
+          ["sparrow", "воробей", "sparrow", "#a16207", "#fde68a", "#78350f"],
+          ["stork", "аист", "stork", "#f8fafc", "#ef4444", "#111827"],
+          ["rooster", "петух", "rooster", "#f97316", "#dc2626", "#facc15"],
+          ["seagull", "чайка", "seagull", "#e2e8f0", "#f59e0b", "#64748b"],
+          ["crow", "ворона", "crow", "#1f2937", "#64748b", "#111827"],
+          ["tit", "синица", "tit", "#facc15", "#2563eb", "#111827"],
+          ["bullfinch", "снегирь", "bullfinch", "#ef4444", "#111827", "#64748b"],
+          ["heron", "цапля", "heron", "#94a3b8", "#f59e0b", "#111827"],
+          ["ostrich", "страус", "ostrich", "#78350f", "#f8fafc", "#111827"],
+          ["hummingbird", "колибри", "hummingbird", "#22c55e", "#a855f7", "#facc15"],
+          ["kingfisher", "зимородок", "kingfisher", "#0ea5e9", "#f97316", "#111827"],
+        ],
+        animals: [
+          ["lion", "лев", "lion", "#f59e0b", "#92400e", "#111827"],
+          ["elephant", "слон", "elephant", "#94a3b8", "#64748b", "#f8fafc"],
+          ["giraffe", "жираф", "giraffe", "#fbbf24", "#92400e", "#111827"],
+          ["zebra", "зебра", "zebra", "#f8fafc", "#111827", "#64748b"],
+          ["fox", "лиса", "fox", "#f97316", "#f8fafc", "#111827"],
+          ["bear", "медведь", "bear", "#92400e", "#78350f", "#111827"],
+          ["rabbit", "заяц", "rabbit", "#e5e7eb", "#f9a8d4", "#111827"],
+          ["hedgehog", "ёж", "hedgehog", "#a16207", "#78350f", "#f8fafc"],
+          ["crocodile", "крокодил", "crocodile", "#16a34a", "#f8fafc", "#111827"],
+          ["turtle", "черепаха", "turtle", "#65a30d", "#854d0e", "#111827"],
+          ["horse", "лошадь", "horse", "#a16207", "#78350f", "#111827"],
+          ["cow", "корова", "cow", "#f8fafc", "#111827", "#f9a8d4"],
+          ["sheep", "овца", "sheep", "#f8fafc", "#111827", "#94a3b8"],
+          ["dog", "собака", "dog", "#b45309", "#fef3c7", "#111827"],
+          ["cat", "кошка", "cat", "#64748b", "#f8fafc", "#111827"],
+          ["wolf", "волк", "wolf", "#64748b", "#374151", "#111827"],
+          ["squirrel", "белка", "squirrel", "#d97706", "#fef3c7", "#111827"],
+          ["deer", "олень", "deer", "#a16207", "#f59e0b", "#111827"],
+          ["monkey", "обезьяна", "monkey", "#92400e", "#fcd34d", "#111827"],
+          ["kangaroo", "кенгуру", "kangaroo", "#b45309", "#f59e0b", "#111827"],
+        ],
+        fish: [
+          ["pike", "щука", "pike", "#65a30d", "#f8fafc", "#14532d"],
+          ["catfish", "сом", "catfish", "#57534e", "#d6d3d1", "#111827"],
+          ["carp", "карп", "carp", "#b45309", "#f59e0b", "#78350f"],
+          ["crucian", "карась", "crucian", "#ca8a04", "#fef3c7", "#78350f"],
+          ["perch", "окунь", "perch", "#15803d", "#f97316", "#111827"],
+          ["salmon", "лосось", "salmon", "#fb7185", "#cbd5e1", "#0f172a"],
+          ["trout", "форель", "trout", "#84cc16", "#ef4444", "#111827"],
+          ["sturgeon", "осётр", "sturgeon", "#64748b", "#cbd5e1", "#111827"],
+          ["flounder", "камбала", "flounder", "#a16207", "#fde68a", "#111827"],
+          ["stingray", "скат", "stingray", "#94a3b8", "#e2e8f0", "#111827"],
+          ["shark", "акула", "shark", "#64748b", "#f8fafc", "#111827"],
+          ["seahorse", "морской конёк", "seahorse", "#f97316", "#facc15", "#111827"],
+          ["clownfish", "рыба-клоун", "clownfish", "#f97316", "#f8fafc", "#111827"],
+          ["tuna", "тунец", "tuna", "#2563eb", "#cbd5e1", "#111827"],
+          ["swordfish", "меч-рыба", "swordfish", "#2563eb", "#e2e8f0", "#111827"],
+          ["eel", "угорь", "eel", "#3f3f46", "#a3e635", "#111827"],
+          ["cod", "треска", "cod", "#64748b", "#d9f99d", "#111827"],
+          ["herring", "сельдь", "herring", "#0ea5e9", "#e2e8f0", "#111827"],
+          ["piranha", "пиранья", "piranha", "#ef4444", "#cbd5e1", "#111827"],
+          ["goldfish", "золотая рыбка", "goldfish", "#f97316", "#facc15", "#111827"],
+        ],
+      };
+
+      const app = document.querySelector("#app");
+      const imageCache = new Map();
+      const photoCache = new Map();
+      let autoNextTimer = null;
+      let timerInterval = null;
+      let penaltyNoticeTimer = null;
+
+      const WIKI_TITLES = {
+        rose: "Роза",
+        tulip: "Тюльпан",
+        sunflower: "Подсолнечник",
+        daisy: "Ромашка",
+        lavender: "Лаванда",
+        poppy: "Мак",
+        lily: "Лилия",
+        orchid: "Орхидные",
+        peony: "Пион",
+        iris: "Ирис_(растение)",
+        dandelion: "Одуванчик",
+        carnation: "Гвоздика_(растение)",
+        chrysanthemum: "Хризантема",
+        hyacinth: "Гиацинт_(растение)",
+        bluebell: ["Колокольчик_раскидистый", "Колокольчик_персиколистный", "Campanula"],
+        cornflower: "Василёк",
+        hibiscus: "Гибискус",
+        lotus: "Лотос",
+        snowdrop: "Подснежник",
+        clover: "Клевер",
+        oak: "Дуб",
+        birch: "Берёза",
+        pine: "Сосна",
+        willow: "Ива",
+        maple: "Клён",
+        aspen: "Осина",
+        apple: "Яблоня",
+        fir: "Ель",
+        baobab: "Баобаб",
+        cypress: "Кипарис",
+        cherry: "Сакура",
+        rowan: "Рябина",
+        cedar: "Кедр",
+        linden: "Липа",
+        poplar: "Тополь",
+        pear: "Груша",
+        chestnut: "Каштан",
+        acacia: "Акация",
+        ash: "Ясень",
+        coconut: "Кокосовая_пальма",
+        owl: "Сова",
+        swan: "Лебедь",
+        duck: "Утка",
+        peacock: "Павлин",
+        flamingo: "Фламинго",
+        parrot: "Попугаеобразные",
+        eagle: "Орёл",
+        woodpecker: "Дятловые",
+        penguin: "Пингвины",
+        sparrow: "Воробьи",
+        stork: "Аисты",
+        rooster: "Петух",
+        seagull: "Чайковые",
+        crow: ["Серая_ворона", "Чёрная_ворона", "Ворона"],
+        tit: "Большая_синица",
+        bullfinch: "Снегирь",
+        heron: "Цаплевые",
+        ostrich: "Страусы",
+        hummingbird: "Колибри",
+        kingfisher: "Зимородковые",
+        lion: "Лев",
+        elephant: "Слон",
+        giraffe: "Жираф",
+        zebra: "Зебра",
+        fox: "Лисица",
+        bear: "Бурый_медведь",
+        rabbit: "Заяц",
+        hedgehog: "Ёж",
+        crocodile: "Крокодил",
+        turtle: "Черепахи",
+        horse: "Лошадь",
+        cow: "Корова",
+        sheep: "Овца",
+        dog: "Собака",
+        cat: "Кошка",
+        wolf: "Волк",
+        squirrel: "Белка",
+        deer: "Олень",
+        monkey: "Обезьяны",
+        kangaroo: "Кенгуру",
+      };
+
+      const state = {
+        screen: "start",
+        mode: "flowers",
+        gameType: "normal",
+        hardMode: false,
+        questions: [],
+        questionIndex: 0,
+        selectedId: null,
+        correctAnswers: 0,
+        mistakes: [],
+        elapsedTime: 0,
+        startedAt: null,
+        penaltyTime: 0,
+        showPenalty: false,
+        records: readRecords(),
+        recordNotice: null,
+      };
+
+      function itemFromTuple(category, tuple) {
+        const [id, name, variant, primary, secondary, accent] = tuple;
+        return { id, category, name, variant, primary, secondary, accent };
+      }
+
+      const DATA = Object.fromEntries(
+        Object.entries(ITEMS).map(([category, items]) => [category, items.map((item) => itemFromTuple(category, item))]),
+      );
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function shuffle(items) {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+          const randomIndex = Math.floor(Math.random() * (index + 1));
+          [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+        }
+        return shuffled;
+      }
+
+      function lowerFirst(value) {
+        return value.slice(0, 1).toLowerCase() + value.slice(1);
+      }
+
+      function getRoundLength() {
+        return state.hardMode ? HARD_ROUND_LENGTH : ROUND_LENGTH;
+      }
+
+      function getOptionsCount() {
+        return state.hardMode ? HARD_OPTIONS_COUNT : OPTIONS_COUNT;
+      }
+
+      function createQuestions(mode) {
+        const source = DATA[mode];
+        const roundItems = shuffle(source).slice(0, getRoundLength());
+        return roundItems.map((item) => ({
+          item,
+          options: shuffle([item, ...shuffle(source.filter((option) => option.id !== item.id)).slice(0, getOptionsCount() - 1)]),
+        }));
+      }
+
+      function readRecords() {
+        try {
+          const savedRecords = window.localStorage.getItem(RECORDS_STORAGE_KEY);
+          return savedRecords === null ? {} : JSON.parse(savedRecords);
+        } catch {
+          return {};
+        }
+      }
+
+      function saveRecords() {
+        try {
+          window.localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(state.records));
+        } catch {
+          // Игру можно продолжать, даже если браузер запретил запись.
+        }
+      }
+
+      function getElapsedTime() {
+        if (state.startedAt === null) {
+          return state.elapsedTime;
+        }
+        return Date.now() - state.startedAt + state.penaltyTime;
+      }
+
+      function formatElapsedTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const centiseconds = Math.floor((milliseconds % 1000) / 10);
+        return `${minutes}:${String(seconds).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
+      }
+
+      function formatRecordDate(recordedAt) {
+        if (typeof recordedAt !== "string") {
+          return "—";
+        }
+        const timestamp = Date.parse(recordedAt);
+        if (Number.isNaN(timestamp)) {
+          return "—";
+        }
+        return new Intl.DateTimeFormat("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(new Date(timestamp));
+      }
+
+      function svgToDataUrl(svg) {
+        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+      }
+
+      function petal(cx, cy, rx, ry, rotate, color, stroke = "rgba(17,24,39,.14)") {
+        return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${color}" stroke="${stroke}" stroke-width="3" transform="rotate(${rotate} ${cx} ${cy})"/>`;
+      }
+
+      function flowerArt(item) {
+        const stem = `<path d="M180 258 C176 226 184 194 180 156" stroke="${item.accent}" stroke-width="12" fill="none" stroke-linecap="round"/>
+          <path d="M176 220 C132 196 112 214 96 244 C134 246 158 238 176 220Z" fill="#65a30d" opacity=".85"/>
+          <path d="M184 226 C224 198 254 212 266 244 C230 249 202 241 184 226Z" fill="#16a34a" opacity=".82"/>`;
+
+        if (item.variant === "sunflower") {
+          const petals = Array.from({ length: 18 }, (_, index) =>
+            petal(180, 134, 28, 72, index * 20, item.primary),
+          ).join("");
+          return `${stem}${petals}<circle cx="180" cy="134" r="52" fill="${item.secondary}"/><g fill="#422006">${Array.from(
+            { length: 20 },
+            (_, index) => `<circle cx="${160 + (index % 5) * 10}" cy="${116 + Math.floor(index / 5) * 12}" r="3"/>`,
+          ).join("")}</g>`;
+        }
+
+        if (item.variant === "tulip") {
+          return `${stem}<path d="M128 122 C132 64 164 80 180 112 C196 80 228 64 232 122 C229 180 198 204 180 206 C162 204 131 180 128 122Z" fill="${item.primary}" stroke="rgba(17,24,39,.16)" stroke-width="4"/><path d="M148 92 C158 122 170 144 180 158 C190 144 202 120 212 92" fill="none" stroke="${item.secondary}" stroke-width="5" stroke-linecap="round" opacity=".7"/>`;
+        }
+
+        if (item.variant === "lavender" || item.variant === "hyacinth") {
+          const bells = Array.from({ length: 14 }, (_, index) => {
+            const y = 76 + index * 11;
+            const x = index % 2 === 0 ? 164 : 196;
+            return `<ellipse cx="${x}" cy="${y}" rx="17" ry="13" fill="${index % 3 === 0 ? item.secondary : item.primary}" transform="rotate(${index % 2 === 0 ? -24 : 24} ${x} ${y})"/>`;
+          }).join("");
+          return `${stem}<path d="M180 210 C176 170 184 116 180 68" stroke="${item.accent}" stroke-width="8" fill="none" stroke-linecap="round"/>${bells}`;
+        }
+
+        if (item.variant === "bluebell" || item.variant === "snowdrop") {
+          const bells = [-34, 0, 34].map((offset, index) => {
+            const x = 180 + offset;
+            return `<path d="M${x - 26} ${118 + index * 8} Q${x} ${72 + index * 5} ${x + 26} ${118 + index * 8} L${x + 14} ${164} Q${x} ${176} ${x - 14} ${164}Z" fill="${index % 2 ? item.secondary : item.primary}" stroke="rgba(17,24,39,.14)" stroke-width="3"/>`;
+          }).join("");
+          return `${stem}${bells}`;
+        }
+
+        if (item.variant === "lotus") {
+          return `${stem}<path d="M88 214 C124 148 160 124 180 200 C200 124 236 148 272 214 C226 204 202 222 180 246 C158 222 134 204 88 214Z" fill="${item.secondary}"/><path d="M116 174 C144 102 176 92 180 196 C184 92 216 102 244 174 C218 170 198 190 180 226 C162 190 142 170 116 174Z" fill="${item.primary}"/><ellipse cx="180" cy="216" rx="96" ry="22" fill="#0f766e" opacity=".25"/>`;
+        }
+
+        if (item.variant === "clover") {
+          return `${stem}<g transform="translate(180 132)"><circle cx="-28" cy="-24" r="35" fill="${item.secondary}"/><circle cx="28" cy="-24" r="35" fill="${item.secondary}"/><circle cx="0" cy="22" r="35" fill="${item.secondary}"/><circle cx="0" cy="-8" r="24" fill="${item.primary}"/></g>`;
+        }
+
+        const petalCount = item.variant === "daisy" || item.variant === "chrysanthemum" ? 14 : 8;
+        const petals = Array.from({ length: petalCount }, (_, index) =>
+          petal(180, 136, item.variant === "poppy" ? 38 : 30, item.variant === "iris" ? 78 : 62, index * (360 / petalCount), index % 2 ? item.secondary : item.primary),
+        ).join("");
+        const centerColor = item.variant === "poppy" ? "#111827" : item.secondary;
+        return `${stem}${petals}<circle cx="180" cy="136" r="${item.variant === "peony" ? 36 : 28}" fill="${centerColor}"/><circle cx="180" cy="136" r="12" fill="#fff7ed" opacity=".35"/>`;
+      }
+
+      function treeArt(item) {
+        const ground = `<ellipse cx="180" cy="284" rx="116" ry="18" fill="#bbf7d0" opacity=".55"/>`;
+        const trunk = `<path d="M158 278 C164 226 164 168 172 116 L196 116 C198 174 204 226 210 278Z" fill="${item.secondary}" stroke="rgba(17,24,39,.16)" stroke-width="4"/>`;
+
+        if (item.variant === "pine" || item.variant === "fir" || item.variant === "cedar") {
+          const tiers = [238, 198, 158, 120].map((y, index) => `<path d="M${70 + index * 18} ${y} L180 ${56 + index * 18} L${290 - index * 18} ${y}Z" fill="${index % 2 ? item.accent : item.primary}" stroke="rgba(17,24,39,.12)" stroke-width="4"/>`).join("");
+          return `${ground}${trunk}${tiers}`;
+        }
+
+        if (item.variant === "palm") {
+          const leaves = Array.from({ length: 8 }, (_, index) => {
+            const angle = -80 + index * 23;
+            return `<ellipse cx="180" cy="98" rx="24" ry="98" fill="${index % 2 ? item.primary : item.accent}" transform="rotate(${angle} 180 98)"/>`;
+          }).join("");
+          return `${ground}<path d="M166 280 C188 218 192 150 176 86" stroke="${item.secondary}" stroke-width="22" fill="none" stroke-linecap="round"/><path d="M174 250 L198 234 M170 210 L198 198 M172 170 L194 158" stroke="#78350f" stroke-width="5" opacity=".35"/>${leaves}<circle cx="160" cy="124" r="12" fill="#92400e"/><circle cx="184" cy="126" r="12" fill="#92400e"/>`;
+        }
+
+        if (item.variant === "birch") {
+          return `${ground}<path d="M156 278 C166 214 166 154 162 92 L200 92 C196 154 202 214 212 278Z" fill="${item.secondary}" stroke="rgba(17,24,39,.18)" stroke-width="4"/><path d="M158 142 L190 132 M170 184 L204 174 M156 226 L190 216" stroke="${item.accent}" stroke-width="7" stroke-linecap="round"/><circle cx="150" cy="98" r="62" fill="${item.primary}"/><circle cx="216" cy="104" r="66" fill="${item.primary}"/><circle cx="180" cy="70" r="58" fill="${item.accent}"/>`;
+        }
+
+        if (item.variant === "willow") {
+          const strands = Array.from({ length: 16 }, (_, index) => {
+            const x = 84 + index * 13;
+            return `<path d="M${x} 90 C${x - 10} 150 ${x + 14} 188 ${x - 4} 244" stroke="${index % 2 ? item.primary : item.accent}" stroke-width="8" fill="none" stroke-linecap="round" opacity=".72"/>`;
+          }).join("");
+          return `${ground}${trunk}<ellipse cx="180" cy="94" rx="118" ry="62" fill="${item.primary}" opacity=".75"/>${strands}`;
+        }
+
+        if (item.variant === "baobab") {
+          return `${ground}<path d="M128 278 C144 206 134 148 158 96 L204 96 C226 148 216 206 234 278Z" fill="${item.secondary}" stroke="rgba(17,24,39,.16)" stroke-width="4"/><circle cx="128" cy="92" r="46" fill="${item.primary}"/><circle cx="178" cy="70" r="54" fill="${item.accent}"/><circle cx="228" cy="96" r="48" fill="${item.primary}"/>`;
+        }
+
+        if (item.variant === "cypress" || item.variant === "poplar") {
+          return `${ground}${trunk}<ellipse cx="180" cy="154" rx="${item.variant === "poplar" ? 48 : 36}" ry="118" fill="${item.primary}"/><ellipse cx="180" cy="106" rx="30" ry="72" fill="${item.accent}" opacity=".75"/>`;
+        }
+
+        const fruit = item.variant === "apple" || item.variant === "rowan" || item.variant === "chestnut" || item.variant === "acacia";
+        const fruits = fruit
+          ? Array.from({ length: 9 }, (_, index) => `<circle cx="${112 + (index % 3) * 48}" cy="${90 + Math.floor(index / 3) * 36}" r="8" fill="${item.accent}"/>`).join("")
+          : "";
+        return `${ground}${trunk}<circle cx="120" cy="136" r="62" fill="${item.primary}"/><circle cx="204" cy="128" r="70" fill="${item.primary}"/><circle cx="174" cy="82" r="66" fill="${item.accent}" opacity=".88"/><circle cx="238" cy="168" r="54" fill="${item.primary}"/>${fruits}`;
+      }
+
+      function birdArt(item) {
+        const legs = `<path d="M168 232 L152 278 M204 232 L224 278" stroke="${item.accent}" stroke-width="8" stroke-linecap="round"/><path d="M142 278 L164 278 M214 278 L238 278" stroke="${item.accent}" stroke-width="7" stroke-linecap="round"/>`;
+
+        if (item.variant === "peacock") {
+          const tail = Array.from({ length: 13 }, (_, index) => {
+            const angle = -72 + index * 12;
+            return `<g transform="rotate(${angle} 180 170)"><ellipse cx="180" cy="92" rx="18" ry="86" fill="${index % 2 ? item.secondary : item.accent}" opacity=".78"/><circle cx="180" cy="44" r="13" fill="${item.primary}"/><circle cx="180" cy="44" r="6" fill="#facc15"/></g>`;
+          }).join("");
+          return `${tail}<ellipse cx="180" cy="188" rx="48" ry="66" fill="${item.primary}"/><circle cx="180" cy="116" r="30" fill="${item.primary}"/><path d="M204 116 L240 106 L206 132Z" fill="#facc15"/><circle cx="190" cy="108" r="5" fill="#111827"/>${legs}`;
+        }
+
+        if (item.variant === "flamingo" || item.variant === "swan" || item.variant === "stork" || item.variant === "heron" || item.variant === "ostrich") {
+          const neckColor = item.primary;
+          return `<path d="M162 216 C120 190 118 140 154 122 C194 102 222 132 208 158 C196 182 164 160 180 132" stroke="${neckColor}" stroke-width="${item.variant === "ostrich" ? 28 : 20}" fill="none" stroke-linecap="round"/><ellipse cx="188" cy="202" rx="72" ry="46" fill="${item.primary}"/><ellipse cx="198" cy="206" rx="48" ry="28" fill="${item.secondary}" opacity=".78"/><circle cx="178" cy="112" r="24" fill="${item.primary}"/><path d="M198 112 L240 104 L204 126Z" fill="${item.accent}"/><circle cx="184" cy="104" r="4" fill="#111827"/>${legs}`;
+        }
+
+        if (item.variant === "owl") {
+          return `<ellipse cx="180" cy="176" rx="78" ry="96" fill="${item.primary}"/><circle cx="150" cy="132" r="38" fill="${item.secondary}"/><circle cx="210" cy="132" r="38" fill="${item.secondary}"/><circle cx="150" cy="132" r="13" fill="#111827"/><circle cx="210" cy="132" r="13" fill="#111827"/><path d="M180 154 L166 184 L194 184Z" fill="#f97316"/><path d="M112 92 L146 118 L132 76Z" fill="${item.primary}"/><path d="M248 92 L214 118 L228 76Z" fill="${item.primary}"/>${legs}`;
+        }
+
+        if (item.variant === "penguin") {
+          return `<ellipse cx="180" cy="182" rx="62" ry="92" fill="${item.primary}"/><ellipse cx="180" cy="194" rx="42" ry="68" fill="${item.secondary}"/><circle cx="180" cy="104" r="42" fill="${item.primary}"/><circle cx="164" cy="102" r="6" fill="#fff"/><circle cx="196" cy="102" r="6" fill="#fff"/><path d="M180 116 L160 136 L200 136Z" fill="${item.accent}"/>${legs}`;
+        }
+
+        const wingColor = item.variant === "woodpecker" || item.variant === "bullfinch" || item.variant === "kingfisher" ? item.secondary : item.accent;
+        const crest = item.variant === "rooster" || item.variant === "woodpecker"
+          ? `<path d="M188 72 C194 44 216 54 208 82 C226 58 244 76 220 96" fill="#dc2626"/>`
+          : "";
+        return `<ellipse cx="178" cy="184" rx="78" ry="56" fill="${item.primary}"/><ellipse cx="178" cy="192" rx="44" ry="32" fill="${wingColor}" opacity=".86"/><circle cx="224" cy="132" r="35" fill="${item.primary}"/>${crest}<path d="M250 132 L298 118 L256 152Z" fill="${item.secondary}"/><circle cx="234" cy="122" r="5" fill="#111827"/><path d="M102 178 C58 148 58 226 106 206Z" fill="${item.accent}" opacity=".88"/>${legs}`;
+      }
+
+      function animalArt(item) {
+        const legs = `<rect x="126" y="218" width="24" height="58" rx="12" fill="${item.primary}"/><rect x="214" y="218" width="24" height="58" rx="12" fill="${item.primary}"/>`;
+
+        if (item.variant === "elephant") {
+          return `<ellipse cx="176" cy="188" rx="84" ry="58" fill="${item.primary}"/><circle cx="240" cy="154" r="54" fill="${item.primary}"/><ellipse cx="226" cy="156" rx="18" ry="34" fill="${item.secondary}" opacity=".45"/><path d="M272 178 C314 212 286 248 252 226" stroke="${item.primary}" stroke-width="26" fill="none" stroke-linecap="round"/><circle cx="250" cy="142" r="5" fill="#111827"/>${legs}<path d="M260 184 L286 196" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>`;
+        }
+
+        if (item.variant === "giraffe") {
+          const spots = Array.from({ length: 9 }, (_, index) => `<circle cx="${120 + (index % 4) * 34}" cy="${150 + Math.floor(index / 4) * 28}" r="10" fill="${item.secondary}" opacity=".75"/>`).join("");
+          return `<ellipse cx="164" cy="206" rx="76" ry="44" fill="${item.primary}"/>${spots}<path d="M214 188 C220 136 220 96 236 72" stroke="${item.primary}" stroke-width="28" fill="none" stroke-linecap="round"/><circle cx="244" cy="70" r="24" fill="${item.primary}"/><path d="M232 44 L224 24 M252 44 L260 24" stroke="${item.secondary}" stroke-width="8" stroke-linecap="round"/><circle cx="250" cy="64" r="4" fill="#111827"/>${legs}`;
+        }
+
+        if (item.variant === "zebra") {
+          const stripes = Array.from({ length: 8 }, (_, index) => `<path d="M${98 + index * 22} 158 L${80 + index * 22} 224" stroke="${item.secondary}" stroke-width="9"/>`).join("");
+          return `<ellipse cx="170" cy="190" rx="88" ry="52" fill="${item.primary}"/>${stripes}<circle cx="248" cy="148" r="34" fill="${item.primary}"/><path d="M258 126 L278 86 L286 132Z" fill="${item.primary}"/><circle cx="260" cy="142" r="5" fill="${item.secondary}"/>${legs}`;
+        }
+
+        if (item.variant === "crocodile") {
+          const teeth = Array.from({ length: 7 }, (_, index) => `<path d="M${214 + index * 14} 182 L${220 + index * 14} 198 L${226 + index * 14} 182Z" fill="${item.secondary}"/>`).join("");
+          return `<path d="M60 202 C120 150 248 150 312 194 C246 230 126 230 60 202Z" fill="${item.primary}"/><path d="M246 170 L328 154 L298 194Z" fill="${item.primary}"/><circle cx="276" cy="166" r="6" fill="#111827"/>${teeth}<path d="M84 196 L42 176 L54 218Z" fill="${item.accent}"/><rect x="120" y="224" width="34" height="20" rx="10" fill="${item.primary}"/><rect x="218" y="224" width="34" height="20" rx="10" fill="${item.primary}"/>`;
+        }
+
+        if (item.variant === "turtle") {
+          return `<ellipse cx="176" cy="198" rx="84" ry="56" fill="${item.secondary}"/><path d="M104 198 C124 142 228 142 248 198 C224 240 128 240 104 198Z" fill="${item.primary}" stroke="rgba(17,24,39,.18)" stroke-width="5"/><path d="M176 154 L176 236 M126 194 L226 194" stroke="${item.secondary}" stroke-width="5" opacity=".55"/><circle cx="270" cy="190" r="25" fill="${item.primary}"/><circle cx="280" cy="184" r="4" fill="#111827"/><circle cx="96" cy="228" r="16" fill="${item.primary}"/><circle cx="226" cy="228" r="16" fill="${item.primary}"/>`;
+        }
+
+        if (item.variant === "hedgehog") {
+          const spikes = Array.from({ length: 14 }, (_, index) => `<path d="M${92 + index * 10} 168 L${102 + index * 10} 126 L${112 + index * 10} 170Z" fill="${item.secondary}"/>`).join("");
+          return `${spikes}<ellipse cx="174" cy="198" rx="88" ry="50" fill="${item.primary}"/><circle cx="252" cy="180" r="28" fill="${item.primary}"/><circle cx="262" cy="174" r="4" fill="#111827"/><path d="M276 184 L296 190" stroke="#111827" stroke-width="5" stroke-linecap="round"/>`;
+        }
+
+        const ears =
+          item.variant === "rabbit"
+            ? `<ellipse cx="232" cy="76" rx="18" ry="54" fill="${item.primary}" transform="rotate(-18 232 76)"/><ellipse cx="268" cy="84" rx="18" ry="54" fill="${item.primary}" transform="rotate(18 268 84)"/>`
+            : item.variant === "fox" || item.variant === "cat" || item.variant === "wolf"
+              ? `<path d="M222 112 L234 70 L254 114Z" fill="${item.primary}"/><path d="M272 112 L292 74 L300 122Z" fill="${item.primary}"/>`
+              : item.variant === "deer"
+                ? `<path d="M238 102 C222 66 226 42 250 24 M268 102 C292 66 288 42 264 24" stroke="${item.secondary}" stroke-width="8" fill="none" stroke-linecap="round"/>`
+                : "";
+
+        const mane = item.variant === "lion" ? `<circle cx="248" cy="142" r="60" fill="${item.secondary}"/>` : "";
+        const tail =
+          item.variant === "fox" || item.variant === "squirrel"
+            ? `<path d="M92 186 C32 136 74 82 128 130 C102 140 104 166 132 188Z" fill="${item.primary}"/><path d="M74 116 C54 96 72 78 96 98" fill="${item.accent}"/>`
+            : `<path d="M92 184 C54 162 54 212 96 204" stroke="${item.primary}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
+
+        const bodyExtra =
+          item.variant === "cow"
+            ? `<ellipse cx="140" cy="180" rx="20" ry="15" fill="${item.secondary}"/><ellipse cx="196" cy="200" rx="24" ry="16" fill="${item.secondary}"/>`
+            : item.variant === "sheep"
+              ? Array.from({ length: 8 }, (_, index) => `<circle cx="${112 + (index % 4) * 34}" cy="${168 + Math.floor(index / 4) * 34}" r="22" fill="${item.primary}"/>`).join("")
+              : "";
+
+        return `${tail}<ellipse cx="168" cy="194" rx="86" ry="54" fill="${item.primary}"/>${bodyExtra}${mane}<circle cx="250" cy="144" r="40" fill="${item.primary}"/>${ears}<circle cx="262" cy="138" r="5" fill="#111827"/><circle cx="236" cy="138" r="5" fill="#111827"/><path d="M248 154 Q256 166 266 154" stroke="${item.accent}" stroke-width="5" fill="none" stroke-linecap="round"/>${legs}`;
+      }
+
+      function natureImage(item) {
+        const cacheKey = `${item.category}:${item.id}`;
+        if (imageCache.has(cacheKey)) {
+          return imageCache.get(cacheKey);
+        }
+
+        const art =
+          item.category === "flowers"
+            ? flowerArt(item)
+            : item.category === "trees"
+              ? treeArt(item)
+              : item.category === "birds"
+                ? birdArt(item)
+                : animalArt(item);
+
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 320" role="img" aria-label="${escapeHtml(item.name)}">
+          <defs>
+            <linearGradient id="bg-${item.id}" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff"/>
+              <stop offset="1" stop-color="#e0f2fe"/>
+            </linearGradient>
+          </defs>
+          <rect width="360" height="320" rx="30" fill="url(#bg-${item.id})"/>
+          <circle cx="74" cy="66" r="34" fill="${item.accent}" opacity=".12"/>
+          <circle cx="298" cy="250" r="42" fill="${item.primary}" opacity=".1"/>
+          ${art}
+        </svg>`;
+
+        const url = svgToDataUrl(svg);
+        imageCache.set(cacheKey, url);
+        return url;
+      }
+
+      function flowerAssetUrl(item) {
+        return `assets/flowers/${item.id}.png`;
+      }
+
+      function treeAssetUrl(item) {
+        return `assets/trees/${item.id}.png`;
+      }
+
+      function birdAssetUrl(item) {
+        return `assets/birds/${item.id}.png`;
+      }
+
+      function animalAssetUrl(item) {
+        return `assets/animals/${item.id}.png`;
+      }
+
+      function fishAssetUrl(item) {
+        return `assets/fish/${item.id}.png`;
+      }
+
+      function itemFallbackImageUrl(item) {
+        if (item.category === "flowers") {
+          return flowerAssetUrl(item);
+        }
+
+        if (item.category === "trees") {
+          return treeAssetUrl(item);
+        }
+
+        if (item.category === "birds") {
+          return birdAssetUrl(item);
+        }
+
+        if (item.category === "animals") {
+          return animalAssetUrl(item);
+        }
+
+        if (item.category === "fish") {
+          return fishAssetUrl(item);
+        }
+
+        return natureImage(item);
+      }
+
+      function resultIllustration(percent) {
+        const face =
+          percent === 100
+            ? `<path d="M142 150 Q180 192 218 150" stroke="#166534" stroke-width="10" fill="none" stroke-linecap="round"/>`
+            : percent >= 70
+              ? `<path d="M144 158 Q180 184 216 158" stroke="#166534" stroke-width="9" fill="none" stroke-linecap="round"/>`
+              : `<path d="M146 178 Q180 154 214 178" stroke="#92400e" stroke-width="9" fill="none" stroke-linecap="round"/>`;
+        return `<figure class="result-hero" aria-label="Иллюстрация результата">
+          <svg viewBox="0 0 360 210" aria-hidden="true">
+            <rect x="20" y="24" width="320" height="162" rx="28" fill="#f0fdfa"/>
+            <path d="M44 150 C88 112 132 122 174 146 C220 92 280 104 318 150 L318 186 L44 186Z" fill="#bbf7d0"/>
+            <circle cx="180" cy="104" r="66" fill="#fef3c7" stroke="#f59e0b" stroke-width="6"/>
+            <circle cx="154" cy="94" r="8" fill="#111827"/>
+            <circle cx="206" cy="94" r="8" fill="#111827"/>
+            ${face}
+            <path d="M66 94 C82 42 132 56 118 108" stroke="#22c55e" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M286 92 C256 42 220 58 234 110" stroke="#38bdf8" stroke-width="10" fill="none" stroke-linecap="round"/>
+          </svg>
+        </figure>`;
+      }
+
+      function modeArt(modeId) {
+        return `assets/modes/${modeId}.png`;
+      }
+
+      function modeTitle(modeId) {
+        return MODES.find((mode) => mode.id === modeId).title;
+      }
+
+      function getWikiTitles(item) {
+        const titles = WIKI_TITLES[item.id] || item.name;
+        return Array.isArray(titles) ? titles : [titles];
+      }
+
+      async function fetchPhotoUrl(item) {
+        if (photoCache.has(item.id)) {
+          return photoCache.get(item.id);
+        }
+
+        const titles = getWikiTitles(item);
+
+        for (const title of titles) {
+          const requestUrl = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+
+          try {
+            const response = await fetch(requestUrl, { mode: "cors" });
+            if (!response.ok) {
+              continue;
+            }
+
+            const summary = await response.json();
+            const photoUrl = summary?.thumbnail?.source || summary?.originalimage?.source || null;
+
+            if (photoUrl !== null) {
+              photoCache.set(item.id, photoUrl);
+              return photoUrl;
+            }
+          } catch {
+            // Пробуем следующий источник, если текущий недоступен.
+          }
+        }
+
+        photoCache.set(item.id, null);
+        return null;
+      }
+
+      async function applyPhotoImages(root = document) {
+        const images = Array.from(root.querySelectorAll("img[data-photo-id]"));
+
+        await Promise.all(
+          images.map(async (image) => {
+            const item = DATA[image.dataset.photoCategory]?.find((candidate) => candidate.id === image.dataset.photoId);
+
+            if (!item) {
+              return;
+            }
+
+            if (
+              item.category === "flowers" ||
+              item.category === "trees" ||
+              item.category === "birds" ||
+              item.category === "animals" ||
+              item.category === "fish"
+            ) {
+              return;
+            }
+
+            const photoUrl = await fetchPhotoUrl(item);
+
+            if (photoUrl === null || !document.contains(image)) {
+              return;
+            }
+
+            image.decoding = "async";
+            image.loading = "lazy";
+            image.src = photoUrl;
+            image.classList.add("is-photo");
+          }),
+        );
+      }
+
+      function itemImageMarkup(item) {
+        return `<span class="answer-card__media">
+          <img src="${itemFallbackImageUrl(item)}" alt="${escapeHtml(item.name)}" data-photo-id="${item.id}" data-photo-category="${item.category}" />
+        </span>`;
+      }
+
+      function renderStart() {
+        stopTimer();
+        const recordsRows = MODES.map((mode) => {
+          const record = state.records[mode.id];
+          return `<tr>
+            <th scope="row">${mode.title}</th>
+            <td class="records-table__time">${record ? `<strong>${formatElapsedTime(record.time)}</strong>` : "—"}</td>
+            <td class="${record ? "" : "records-table__empty"}">${record ? formatRecordDate(record.recordedAt) : "Пока нет"}</td>
+          </tr>`;
+        }).join("");
+
+        app.innerHTML = `<main class="app-main">
+          <section class="screen start-screen" aria-labelledby="start-title">
+            <div class="intro">
+              <p class="eyebrow">Природный квиз</p>
+              <h1 id="start-title">Угадай картинку</h1>
+              <p class="lead">Цветы, деревья, птицы, животные и рыбы: пять режимов, короткие раунды и рекорды на время.</p>
+            </div>
+
+            <div class="start-controls">
+              <div class="game-type-switch" aria-label="Тип игры">
+                <button class="${state.gameType === "normal" ? "is-active" : ""}" type="button" data-game-type="normal">Обычная игра</button>
+                <button class="${state.gameType === "timed" ? "is-active" : ""}" type="button" data-game-type="timed">Игра на время</button>
+              </div>
+
+              <label class="difficulty-toggle">
+                <span class="difficulty-toggle__copy">
+                  <span>Сложный режим</span>
+                  <small>20 вопросов и 6 вариантов</small>
+                </span>
+                <input type="checkbox" role="switch" ${state.hardMode ? "checked" : ""} data-hard-mode />
+                <span class="difficulty-toggle__switch" aria-hidden="true"></span>
+              </label>
+            </div>
+
+            <div class="mode-grid" role="radiogroup" aria-label="Режим игры">
+              ${MODES.map((mode) => `<button class="mode-card" style="--mode-art: url('${modeArt(mode.id)}')" type="button" role="radio" data-mode="${mode.id}">
+                <span>${mode.title}</span>
+              </button>`).join("")}
+            </div>
+
+            <section class="records-panel" aria-label="Рекорды на время">
+              <p class="eyebrow">Рекорды на время</p>
+              <div class="records-table-wrap">
+                <table class="records-table">
+                  <caption class="visually-hidden">Рекорды игры на время по каждому режиму</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Режим</th>
+                      <th scope="col">Рекорд</th>
+                      <th scope="col">Дата и время</th>
+                    </tr>
+                  </thead>
+                  <tbody>${recordsRows}</tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+        </main>
+        <footer class="app-footer">Квиз по изображениям природы</footer>`;
+
+        document.querySelectorAll("[data-game-type]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.gameType = button.dataset.gameType;
+            renderStart();
+          });
+        });
+
+        document.querySelector("[data-hard-mode]").addEventListener("change", (event) => {
+          state.hardMode = event.target.checked;
+          renderStart();
+        });
+
+        document.querySelectorAll("[data-mode]").forEach((button) => {
+          button.addEventListener("click", () => startRound(button.dataset.mode));
+        });
+      }
+
+      function startRound(mode = state.mode) {
+        clearPendingTimers();
+        state.mode = mode;
+        state.questions = createQuestions(mode);
+        state.questionIndex = 0;
+        state.selectedId = null;
+        state.correctAnswers = 0;
+        state.mistakes = [];
+        state.elapsedTime = 0;
+        state.penaltyTime = 0;
+        state.showPenalty = false;
+        state.recordNotice = null;
+        state.startedAt = state.gameType === "timed" ? Date.now() : null;
+        state.screen = "quiz";
+        renderQuiz();
+        startTimer();
+      }
+
+      function startTimer() {
+        stopTimer();
+        if (state.gameType !== "timed") {
+          return;
+        }
+        timerInterval = window.setInterval(() => {
+          state.elapsedTime = getElapsedTime();
+          const timerNode = document.querySelector("#timer-value");
+          if (timerNode) {
+            timerNode.textContent = formatElapsedTime(state.elapsedTime);
+          }
+        }, 40);
+      }
+
+      function stopTimer() {
+        if (timerInterval !== null) {
+          window.clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function clearPendingTimers() {
+        if (autoNextTimer !== null) {
+          window.clearTimeout(autoNextTimer);
+          autoNextTimer = null;
+        }
+        if (penaltyNoticeTimer !== null) {
+          window.clearTimeout(penaltyNoticeTimer);
+          penaltyNoticeTimer = null;
+        }
+      }
+
+      function answerClass(option) {
+        const classNames = ["answer-card"];
+        const current = state.questions[state.questionIndex];
+        if (state.selectedId !== null && option.id === current.item.id) {
+          classNames.push("is-correct");
+        }
+        if (state.selectedId !== null && option.id === state.selectedId && option.id !== current.item.id) {
+          classNames.push("is-wrong");
+        }
+        return classNames.join(" ");
+      }
+
+      function renderQuiz() {
+        const current = state.questions[state.questionIndex];
+        const completedQuestions = state.questionIndex + (state.selectedId === null ? 0 : 1);
+        const progress = (completedQuestions / state.questions.length) * 100;
+        const timedRecord = state.records[state.mode]?.time ?? null;
+        const prompt = `Где ${lowerFirst(current.item.name)}?`;
+
+        app.innerHTML = `<main class="app-main">
+          <section class="screen quiz-screen" aria-labelledby="quiz-title">
+            <div class="quiz-header">
+              <div>
+                <p class="eyebrow">Текущий режим</p>
+                <h1 id="quiz-title">${modeTitle(state.mode)}</h1>
+              </div>
+              <div class="score-box ${state.gameType === "timed" ? "score-box--timed" : ""}" aria-label="Счёт" style="--quiz-progress: ${progress}%">
+                ${state.gameType === "timed" ? `<em class="timer-line">
+                  <span>Время: <span id="timer-value">${formatElapsedTime(state.elapsedTime)}</span></span>
+                  <span class="record-line">Рекорд: ${timedRecord === null ? "—" : formatElapsedTime(timedRecord)}</span>
+                  ${state.showPenalty ? `<span class="penalty-notice">+10 секунд!</span>` : ""}
+                </em>` : ""}
+                <span>Вопрос ${state.questionIndex + 1} из ${state.questions.length}</span>
+                <strong>Правильно: ${state.correctAnswers}</strong>
+              </div>
+            </div>
+
+            <div class="question-panel">
+              <h2>${prompt}</h2>
+            </div>
+
+            <div class="answers-grid ${current.options.length === 6 ? "answers-grid--six" : ""}">
+              ${current.options.map((option) => `<button class="${answerClass(option)}" type="button" ${state.selectedId !== null ? "disabled" : ""} data-answer="${option.id}">
+                ${itemImageMarkup(option)}
+              </button>`).join("")}
+            </div>
+
+            <button class="secondary-button back-button" type="button" data-back>Вернуться</button>
+          </section>
+        </main>
+        <footer class="app-footer">Квиз по изображениям природы</footer>`;
+
+        document.querySelector("[data-back]").addEventListener("click", () => {
+          clearPendingTimers();
+          state.screen = "start";
+          renderStart();
+        });
+
+        document.querySelectorAll("[data-answer]").forEach((button) => {
+          button.addEventListener("click", () => handleAnswer(button.dataset.answer));
+        });
+
+        applyPhotoImages();
+      }
+
+      function handleAnswer(answerId) {
+        if (state.selectedId !== null) {
+          return;
+        }
+
+        const current = state.questions[state.questionIndex];
+        const selectedItem = current.options.find((option) => option.id === answerId);
+        const isCorrect = answerId === current.item.id;
+        const nextCorrectAnswers = state.correctAnswers + (isCorrect ? 1 : 0);
+
+        state.selectedId = answerId;
+        state.correctAnswers = nextCorrectAnswers;
+
+        if (!isCorrect) {
+          state.mistakes.push({
+            prompt: `Где ${lowerFirst(current.item.name)}?`,
+            correctItem: current.item,
+            selectedItem,
+          });
+
+          if (state.gameType === "timed") {
+            state.penaltyTime += 10000;
+            state.elapsedTime = getElapsedTime();
+            state.showPenalty = true;
+            penaltyNoticeTimer = window.setTimeout(() => {
+              state.showPenalty = false;
+              renderQuiz();
+            }, 850);
+          }
+        }
+
+        renderQuiz();
+
+        autoNextTimer = window.setTimeout(() => {
+          if (state.questionIndex + 1 >= state.questions.length) {
+            completeRound();
+            return;
+          }
+          state.questionIndex += 1;
+          state.selectedId = null;
+          renderQuiz();
+        }, 900);
+      }
+
+      function completeRound() {
+        stopTimer();
+        state.elapsedTime = state.gameType === "timed" ? getElapsedTime() : null;
+        state.startedAt = null;
+
+        if (state.gameType === "timed" && state.elapsedTime !== null) {
+          const currentRecord = state.records[state.mode];
+          if (!currentRecord || currentRecord.time > state.elapsedTime) {
+            state.records[state.mode] = {
+              time: state.elapsedTime,
+              recordedAt: new Date().toISOString(),
+            };
+            saveRecords();
+            state.recordNotice = {
+              previousRecord: currentRecord?.time ?? null,
+              newRecord: state.elapsedTime,
+            };
+          }
+        }
+
+        state.screen = "result";
+        renderResult();
+      }
+
+      function resultSummary() {
+        const total = state.questions.length;
+        const correct = state.correctAnswers;
+        const mistakes = total - correct;
+        const percent = Math.round((correct / total) * 100);
+        let message = "Юный натуралист задумался: некоторые картинки стоит рассмотреть ещё раз.";
+
+        if (percent === 100) {
+          message = "Юный натуралист сияет: все картинки угаданы без ошибок!";
+        } else if (percent >= 80) {
+          message = "Отличный раунд: почти всё уже узнаётся с первого взгляда.";
+        } else if (percent >= 60) {
+          message = "Хорошая попытка: несколько образов ещё просят повторения.";
+        }
+
+        return { total, correct, mistakes, percent, message };
+      }
+
+      function renderResult() {
+        const result = resultSummary();
+        const recordMessage =
+          state.recordNotice === null
+            ? ""
+            : state.recordNotice.previousRecord === null
+              ? `Первый рекорд установлен: ${formatElapsedTime(state.recordNotice.newRecord)}!`
+              : `Новый рекорд по времени! Было ${formatElapsedTime(state.recordNotice.previousRecord)}, стало ${formatElapsedTime(state.recordNotice.newRecord)}.`;
+
+        app.innerHTML = `<main class="app-main">
+          <section class="screen result-screen" aria-labelledby="result-title">
+            <div class="intro">
+              <p class="eyebrow">Финиш</p>
+              <h1 id="result-title">Раунд завершён</h1>
+              <p class="lead">${result.message}</p>
+            </div>
+
+            ${recordMessage ? `<p class="record-banner" role="status">${recordMessage}</p>` : ""}
+            ${resultIllustration(result.percent)}
+
+            <div class="result-grid" aria-label="Статистика раунда">
+              <div class="result-card">
+                <span>Правильных ответов</span>
+                <strong>${result.correct}</strong>
+              </div>
+              <div class="result-card">
+                <span>Ошибок</span>
+                <strong>${result.mistakes}</strong>
+              </div>
+              <div class="result-card">
+                <span>Точность</span>
+                <strong>${result.percent}%</strong>
+              </div>
+              ${state.elapsedTime !== null ? `<div class="result-card">
+                <span>Время</span>
+                <strong>${formatElapsedTime(state.elapsedTime)}</strong>
+              </div>` : ""}
+            </div>
+
+            ${state.mistakes.length > 0 ? `<div class="mistakes-panel">
+              <h2>Правильные ответы</h2>
+              <div class="mistakes-list">
+                ${state.mistakes.map((mistake, index) => `<div class="mistake-row" key="${index}">
+                  <div>
+                    <span>${escapeHtml(mistake.prompt)}</span>
+                    <strong>${escapeHtml(mistake.correctItem.name)}</strong>
+                    <img src="${itemFallbackImageUrl(mistake.correctItem)}" alt="${escapeHtml(mistake.correctItem.name)}" data-photo-id="${mistake.correctItem.id}" data-photo-category="${mistake.correctItem.category}" />
+                  </div>
+                  <div class="mistake-answer-pair">
+                    <small>Твой ответ: ${escapeHtml(mistake.selectedItem.name)}</small>
+                    <img src="${itemFallbackImageUrl(mistake.selectedItem)}" alt="${escapeHtml(mistake.selectedItem.name)}" data-photo-id="${mistake.selectedItem.id}" data-photo-category="${mistake.selectedItem.category}" />
+                  </div>
+                </div>`).join("")}
+              </div>
+            </div>` : ""}
+
+            <div class="result-actions">
+              <button class="primary-button" type="button" data-restart>Сыграть ещё раз</button>
+              <button class="secondary-button" type="button" data-choose-mode>Выбрать другой режим</button>
+            </div>
+          </section>
+        </main>
+        <footer class="app-footer">Квиз по изображениям природы</footer>`;
+
+        document.querySelector("[data-restart]").addEventListener("click", () => startRound());
+        document.querySelector("[data-choose-mode]").addEventListener("click", () => {
+          state.screen = "start";
+          renderStart();
+        });
+
+        applyPhotoImages();
+      }
+
+      renderStart();
+    </script>
+  </body>
+</html>
