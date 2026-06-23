@@ -1,6 +1,5 @@
-import base64
-import json
 from pathlib import Path
+import shutil
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -9,29 +8,34 @@ import streamlit.components.v1 as components
 ROOT = Path(__file__).parent
 HTML_PATH = ROOT / "outputs" / "nature-image-quiz.html"
 ASSETS_PATH = ROOT / "outputs" / "assets"
+STATIC_ASSETS_PATH = ROOT / "static" / "assets"
 
 
-def image_data_uri(path):
-    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
+def ensure_static_assets():
+    STATIC_ASSETS_PATH.parent.mkdir(exist_ok=True)
+
+    if not STATIC_ASSETS_PATH.exists():
+        shutil.copytree(ASSETS_PATH, STATIC_ASSETS_PATH)
+        return
+
+    source_files = sorted(path.relative_to(ASSETS_PATH) for path in ASSETS_PATH.rglob("*.png"))
+    static_files = sorted(path.relative_to(STATIC_ASSETS_PATH) for path in STATIC_ASSETS_PATH.rglob("*.png"))
+
+    if source_files != static_files:
+        shutil.rmtree(STATIC_ASSETS_PATH)
+        shutil.copytree(ASSETS_PATH, STATIC_ASSETS_PATH)
 
 
 @st.cache_data
 def load_quiz_html():
     html = HTML_PATH.read_text(encoding="utf-8")
 
-    asset_map = {
-        f"assets/{path.relative_to(ASSETS_PATH).as_posix()}": image_data_uri(path)
-        for path in ASSETS_PATH.rglob("*.png")
-    }
-
     html = html.replace(
         "<script>",
         (
             "<script>"
-            f"window.__STREAMLIT_ASSETS__ = {json.dumps(asset_map)};"
             "function streamlitAssetUrl(path) {"
-            "return window.__STREAMLIT_ASSETS__[path] || path;"
+            "return `./app/static/${path}`;"
             "}"
             "</script>\n<script>"
         ),
@@ -54,4 +58,5 @@ def load_quiz_html():
 
 
 st.set_page_config(page_title="Nature image quiz", layout="wide")
+ensure_static_assets()
 components.html(load_quiz_html(), height=960, scrolling=True)
