@@ -681,6 +681,8 @@
       }
 
       .result-hero {
+        width: min(100%, 860px);
+        justify-self: center;
         display: grid;
         place-items: center;
         overflow: hidden;
@@ -695,9 +697,9 @@
       .result-hero img {
         display: block;
         width: 100%;
+        max-height: min(42vh, 390px);
         height: auto;
-        aspect-ratio: 16 / 7;
-        object-fit: cover;
+        object-fit: contain;
         object-position: center;
       }
 
