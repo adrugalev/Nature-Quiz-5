@@ -18,10 +18,13 @@ def ensure_static_assets():
         shutil.copytree(ASSETS_PATH, STATIC_ASSETS_PATH)
         return
 
-    source_files = sorted(path.relative_to(ASSETS_PATH) for path in ASSETS_PATH.rglob("*.png"))
-    static_files = sorted(path.relative_to(STATIC_ASSETS_PATH) for path in STATIC_ASSETS_PATH.rglob("*.png"))
+    def asset_signature(root):
+        return sorted(
+            (path.relative_to(root).as_posix(), path.stat().st_size)
+            for path in root.rglob("*.png")
+        )
 
-    if source_files != static_files:
+    if asset_signature(ASSETS_PATH) != asset_signature(STATIC_ASSETS_PATH):
         shutil.rmtree(STATIC_ASSETS_PATH)
         shutil.copytree(ASSETS_PATH, STATIC_ASSETS_PATH)
 
@@ -49,6 +52,7 @@ def load_quiz_html():
         "return `assets/animals/${item.id}.png`;": "return streamlitAssetUrl(`assets/animals/${item.id}.png`);",
         "return `assets/fish/${item.id}.png`;": "return streamlitAssetUrl(`assets/fish/${item.id}.png`);",
         "return `assets/modes/${modeId}.png`;": "return streamlitAssetUrl(`assets/modes/${modeId}.png`);",
+        "return `assets/results/${image}.png`;": "return streamlitAssetUrl(`assets/results/${image}.png`);",
     }
 
     for old, new in replacements.items():
