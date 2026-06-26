@@ -61,6 +61,6 @@ def load_quiz_html():
     return html
 
 
-st.set_page_config(page_title="Nature image quiz", layout="wide")
+st.set_page_config(page_title="Угадай картинку", layout="wide")
 ensure_static_assets()
 components.html(load_quiz_html(), height=960, scrolling=True)
